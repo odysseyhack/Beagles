@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Serverless Specification template describing your function.
+Resources:
+  middleLayerCommonHandler:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs8.10
+      CodeUri: .
+      Description: ''
+      MemorySize: 128
+      Timeout: 60
+      Role: 'arn:aws:iam::999335108301:role/middleLayer'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /registerinforequest
+            Method: POST
+        Api2:
+          Type: Api
+          Properties:
+            Path: /gettransactionreport
+            Method: GET
+        Api3:
+          Type: Api
+          Properties:
+            Path: /registertraveldetails
+            Method: POST
+        Api4:
+          Type: Api
+          Properties:
+            Path: /MyResource
+            Method: ANY
+        Api5:
+          Type: Api
+          Properties:
+            Path: /authorizeinforequest
+            Method: POST
+        Api6:
+          Type: Api
+          Properties:
+            Path: /forgetme
+            Method: POST
+        Api7:
+          Type: Api
+          Properties:
+            Path: /registerpassportdetails
+            Method: POST
+        Api8:
+          Type: Api
+          Properties:
+            Path: /isinforequestauthorized
+            Method: GET
+        Api9:
+          Type: Api
+          Properties:
+            Path: /getwalletstatus
+            Method: GET
