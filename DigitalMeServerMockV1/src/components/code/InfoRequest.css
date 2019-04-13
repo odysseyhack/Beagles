@@ -1,0 +1,20 @@
+.pollingIndicator {
+  background-color: #28a745;
+  /* border: 1px solid darkorange; */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  -webkit-box-shadow: 2px 2px 2px 0px #124d20;
+  -moz-box-shadow: 2px 2px 2px 0px #124d20;
+  box-shadow: 2px 2px 2px 0px #124d20;
+  animation: blinker 1s cubic-bezier(0, 1.83, 1, 1) infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
