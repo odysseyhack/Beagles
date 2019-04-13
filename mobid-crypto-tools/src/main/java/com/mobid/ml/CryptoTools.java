@@ -38,7 +38,7 @@ public class CryptoTools implements RequestHandler<APIGatewayProxyRequestEvent, 
 
 		APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 		HashMap<String, Object> responseBody = new HashMap<>();
-		responseBody.put("errorMessage", "");
+		responseBody.put("errorMessage", null);
 
 		try {
 
