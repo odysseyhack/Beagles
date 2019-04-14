@@ -77,7 +77,29 @@ exports[`App snapshot renders the root without loading screen 1`] = `
                   "flex": 1,
                 }
               }
-            />
+            >
+              <View
+                style={
+                  Object {
+                    "flex": 1,
+                  }
+                }
+              >
+                <View>
+                  <Text
+                    style={
+                      Object {
+                        "fontSize": 14,
+                        "paddingBottom": 25,
+                        "paddingLeft": 10,
+                      }
+                    }
+                  >
+                    powerd by The Beagels
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
         <View
@@ -95,7 +117,7 @@ exports[`App snapshot renders the root without loading screen 1`] = `
           <View
             style={
               Object {
-                "backgroundColor": "#2cb28c",
+                "backgroundColor": "#00a1de",
                 "transform": Array [
                   Object {
                     "translateX": 0,
@@ -109,7 +131,7 @@ exports[`App snapshot renders the root without loading screen 1`] = `
               pointerEvents="box-none"
               style={
                 Object {
-                  "backgroundColor": "#2cb28c",
+                  "backgroundColor": "#00a1de",
                   "borderBottomColor": "#A7A7AA",
                   "borderBottomWidth": 0.5,
                   "height": 64,

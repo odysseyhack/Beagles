@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Api test renders the Home Screen 1`] = `
+<View
+  style={
+    Object {
+      "flex": 1,
+    }
+  }
+>
+  <View>
+    <Text
+      style={
+        Object {
+          "fontSize": 14,
+          "paddingBottom": 25,
+          "paddingLeft": 10,
+        }
+      }
+    >
+      powerd by The Beagels
+    </Text>
+  </View>
+</View>
+`;

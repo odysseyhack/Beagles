@@ -6,8 +6,8 @@ export function toIsoDateString(dateString: string): string {
   return getDateString(new Date(dateString));
 }
 
-export function getAge(birthDate: Date): number {
-  const now: Date = new Date();
+export function getAge(birthDate: Date, now?: Date): number {
+  now = now || new Date();
   let age: number = now.getFullYear() - birthDate.getFullYear();
   const m: number = now.getMonth() - birthDate.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
