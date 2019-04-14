@@ -1,2 +1,3 @@
 exclude:
 - /DigitalMeServerMockV1/.*
+- /DigitalMeV1/app/api/.*
