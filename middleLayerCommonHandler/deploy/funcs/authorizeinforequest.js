@@ -15,6 +15,20 @@ function authorizeInfoRequest(inBody, callback) {
         outBody.errorMessage = errorMessage;
         callback(outBody);
     }
+    
+    function updateItem(item, sharedAttributes) {
+        item.sharedAttributes = sharedAttributes;
+        item.isCompleted = true;
+        item.isAuthorized = !(sharedAttributes == null);
+
+        // Temporary store shared information
+        storage.storeRequest(
+            item,
+            function() {
+                outBody.processingOK = true;
+                callback(outBody);
+            }, exitWithError);
+    }
 
     // Get registered request
     storage.getRequest(
@@ -26,19 +40,7 @@ function authorizeInfoRequest(inBody, callback) {
             else {
 
                 if (inBody.declineAuthorization) {
-
-                    item.sharedAttributes = null;
-                    item.isCompleted = true;
-                    item.isAuthorized = false;
-
-                    // Temporary store shared information
-                    storage.storeRequest(
-                        item,
-                        function() {
-                            outBody.processingOK = true;
-                            callback(outBody);
-                        }, exitWithError);
-
+                    updateItem(item, null);
                 }
                 else {
 
@@ -59,17 +61,7 @@ function authorizeInfoRequest(inBody, callback) {
 
                     // Call KrypC inforequests
                     krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(kcResContent) {
-
-                        item.sharedAttributes = inBody.attributes;
-                        item.isCompleted = true;
-                        item.isAuthorized = true;
-
-                        // Temporary store shared information
-                        storage.storeRequest(item, function() {
-                            outBody.processingOK = true;
-                            callback(outBody);
-                        }, exitWithError);
-
+                    	updateItem(item, inBody.attributes);
                     }, exitWithError);
                 }
 

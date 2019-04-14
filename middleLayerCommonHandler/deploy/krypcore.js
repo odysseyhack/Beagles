@@ -5,17 +5,7 @@ const krypcoreAux = require('krypcoreAux.js');
 function invokeAPI(reqPath, reqBody, callbackOK, callbackError) {
     console.log('Calling KrypCore ', reqPath);
     
-    kcReqBody.Program = "digitalmes";
-    if (kcReqBody.Receiver == null) kcReqBody.Receiver = {};
-    if (kcReqBody.Receiver.ID == null) kcReqBody.Receiver.ID = "opeuser";
-    kcReqBody.Receiver.MSPID = "Org1MSP";
-    kcReqBody.sm = 2;
-    kcReqBody.sm_uid = "passengerone";
-    kcReqBody.sm_pwd = "password";
-    kcReqBody.ChainCodeId = "ledger";
-    kcReqBody.ChannelId = "orgchannel";
-
-    
+    krypcoreAux.fillReqBody(reqBody);
     console.log(reqBody);
 
     const reqPostData = JSON.stringify(reqBody);
