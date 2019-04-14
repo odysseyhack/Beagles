@@ -14,11 +14,6 @@ function registerPassportDetails(inBody, callback) {
     
 
     const kcReqBody = {
-        "Program": "digitalmes",
-        "Receiver": {
-            "ID": "opeuser",
-            "MSPID": "Org1MSP"
-        },
         "StructureId": "psprtdetails",
         "Payload": {
             "aYrs": inBody.age,
@@ -28,12 +23,7 @@ function registerPassportDetails(inBody, callback) {
             "primaryid": mobId,
             "pstate": inBody.passportStatus,
             "refId": null
-        },
-        "sm": 2,
-        "sm_uid": "passengerone",
-        "sm_pwd": "password",
-        "ChainCodeId": "ledger",
-        "ChannelId": "orgchannel"
+        }
     };
 
     // Call KrypC psprtdetails

@@ -7,20 +7,10 @@ function getTransactionReport(inParams, callback) {
     console.log("mobIdToken = ", inParams.mobIdToken);
 
     const kcReqBody = {
-        "Program": "digitalmes",
-        "Receiver": {
-            "ID": "opeuser",
-            "MSPID": "Org1MSP"
-        },
         "StructureId": "transactionreport",
         "Payload": {
             "primId": [inParams.mobIdToken]
-        },
-        "sm": 2,
-        "sm_uid": "passengerone",
-        "sm_pwd": "password",
-        "ChainCodeId": "ledger",
-        "ChannelId": "orgchannel"
+        }
     };
 
     // Call KrypC walletstatereport

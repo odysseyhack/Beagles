@@ -3,6 +3,18 @@ const https = require('https');
 
 function invokeAPI(reqPath, reqBody, callback) {
     console.log('Calling KrypCore ', reqPath);
+    
+    kcReqBody.Program = "digitalmes";
+    if (kcReqBody.Receiver == null) kcReqBody.Receiver = {};
+    if (kcReqBody.Receiver.ID == null) kcReqBody.Receiver.ID = "opeuser";
+    kcReqBody.Receiver.MSPID = "Org1MSP";
+    kcReqBody.sm = 2;
+    kcReqBody.sm_uid = "passengerone";
+    kcReqBody.sm_pwd = "password";
+    kcReqBody.ChainCodeId = "ledger";
+    kcReqBody.ChannelId = "orgchannel";
+
+    
     console.log(reqBody);
 
     const reqPostData = JSON.stringify(reqBody);
@@ -84,7 +96,7 @@ function getRequestTypeUser(requestType) {
         case "Booking":
             return "klmticketing";
     }
-    return "loungeuser1"; // default
+    return "opeuser"; // default
 }
 
 module.exports = {

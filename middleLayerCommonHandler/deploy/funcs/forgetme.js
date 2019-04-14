@@ -6,21 +6,11 @@ function forgetMe(inBody, callback) {
     console.log("mobIdTokenList = ", inBody.mobIdTokenList);
 
     const kcReqBody = {
-        "Program": "digitalmes",
-        "Receiver": {
-            "ID": "opeuser",
-            "MSPID": "Org1MSP"
-        },
         "StructureId": "forgetme",
         "Payload": {
             "primaryid": inBody.mobIdTokenList,
             "reqDate": krypcore.generateDate(inBody.requestDate)
-        },
-        "sm": 2,
-        "sm_uid": "passengerone",
-        "sm_pwd": "password",
-        "ChainCodeId": "ledger",
-        "ChannelId": "orgchannel"
+        }
     };
 
     // Call KrypC traveldetails

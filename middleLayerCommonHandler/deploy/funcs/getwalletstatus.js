@@ -8,21 +8,11 @@ function getWalletStatus(inParams, callback) {
     console.log("requestDate = ", inParams.requestDate);
 
     const kcReqBody = {
-        "Program": "digitalmes",
-        "Receiver": {
-            "ID": "opeuser",
-            "MSPID": "Org1MSP"
-        },
         "StructureId": "walletstatereport",
         "Payload": {
             "primaryId": inParams.mobIdToken,
             "reqDte": krypcore.generateDate(inParams.requestDate)
-        },
-        "sm": 2,
-        "sm_uid": "passengerone",
-        "sm_pwd": "password",
-        "ChainCodeId": "ledger",
-        "ChannelId": "orgchannel"
+        }
     };
 
     // Call KrypC walletstatereport

@@ -69,10 +69,8 @@ function authorizeInfoRequest(inBody, callback) {
                     else {
 
                         const kcReqBody = {
-                            "Program": "digitalmes",
                             "Receiver": {
                                 "ID": krypcore.getRequestTypeUser(inBody.requestType),
-                                "MSPID": "Org1MSP"
                             },
                             "StructureId": "inforequests",
                             "Payload": {
@@ -82,12 +80,7 @@ function authorizeInfoRequest(inBody, callback) {
                                 "reqDate": krypcore.generateDate(inBody.requestDate),
                                 "requestId": inBody.requestId,
                                 "requestType": inBody.requestType
-                            },
-                            "sm": 2,
-                            "sm_uid": "passengerone",
-                            "sm_pwd": "password",
-                            "ChainCodeId": "ledger",
-                            "ChannelId": "orgchannel"
+                            }
                         };
 
 
