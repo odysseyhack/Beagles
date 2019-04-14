@@ -1,4 +1,6 @@
 import {
+  GenerateSignatureInput,
+  GenerateSignatureOutput,
   AuthorizeInfoRequestInput,
   InfoAttribute,
   GenericProcessingOutput,
@@ -19,23 +21,33 @@ function logRequest(request: any): void {
   utils.logObject(request, "request:");
 }
 
-export function forgetMe(
-  mobIdTokenList: Array<string>
-): Promise<GenericProcessingOutput> {
+export function forgetMe(mobIdTokenList: Array<string>): Promise<GenericProcessingOutput> {
   const request: ForgetMeInput = {
     mobIdTokenList: mobIdTokenList
   } as ForgetMeInput;
-
   logRequest(request);
   return apiUtils.api.forgetmePost(request).then(apiUtils.handleResponse);
 }
 
+export function generatesignaturePost(input: string): Promise<GenerateSignatureOutput> {
+  var request: GenerateSignatureInput = {
+    values: [input]
+  } as GenerateSignatureInput;
+  return apiUtils.api.generatesignaturePost(request).then(apiUtils.handleResponse);
+}
+
+export type authorizeInfoRequestType = {
+  passport: mob.Passport;
+  booking: mob.Booking;
+  infoRequest: any;
+  infoAttributes: Array<InfoAttribute>;
+};
+
 export function authorizeInfoRequest(
-  passport: mob.Passport,
-  booking: mob.Booking,
-  infoRequest: any,
-  infoAttributes: Array<InfoAttribute>
+  params: authorizeInfoRequestType
 ): Promise<GenericProcessingOutput> {
+  const { passport, booking, infoRequest, infoAttributes } = params;
+
   const request: AuthorizeInfoRequestInput = {
     mobIdToken: passport.mobIdToken || "",
     requestId: infoRequest.requestId,
@@ -47,11 +59,8 @@ export function authorizeInfoRequest(
     attributes: infoAttributes,
     declineAuthorization: false
   };
-
   logRequest(request);
-  return apiUtils.api
-    .authorizeinforequestPost(request)
-    .then(apiUtils.handleResponse);
+  return apiUtils.api.authorizeinforequestPost(request).then(apiUtils.handleResponse);
 }
 
 export function declineInfoRequest(
@@ -63,28 +72,19 @@ export function declineInfoRequest(
     requestId: infoRequest.requestId,
     declineAuthorization: true
   } as AuthorizeInfoRequestInput;
-
   logRequest(request);
-  return apiUtils.api
-    .authorizeinforequestPost(request)
-    .then(apiUtils.handleResponse);
+  return apiUtils.api.authorizeinforequestPost(request).then(apiUtils.handleResponse);
 }
 
 export function getWalletstatus(
   mobIdToken: string,
   requestDate?: string
 ): Promise<WalletStatusOutput> {
-  return apiUtils.api
-    .getwalletstatusGet(mobIdToken, requestDate)
-    .then(apiUtils.handleResponse);
+  return apiUtils.api.getwalletstatusGet(mobIdToken, requestDate).then(apiUtils.handleResponse);
 }
 
-export function getTransactionReport(
-  mobIdToken: string
-): Promise<TransactionReportOutput> {
-  return apiUtils.api
-    .gettransactionreportGet(mobIdToken)
-    .then(apiUtils.handleResponse);
+export function getTransactionReport(mobIdToken: string): Promise<TransactionReportOutput> {
+  return apiUtils.api.gettransactionreportGet(mobIdToken).then(apiUtils.handleResponse);
 }
 
 export function registerTravelDetails(
@@ -100,11 +100,8 @@ export function registerTravelDetails(
     travelType: "Domestic" as TravelDetailsInputNs.TravelTypeEnum,
     travelDate: booking.travelDate
   };
-
   logRequest(request);
-  return apiUtils.api
-    .registertraveldetailsPost(request)
-    .then(apiUtils.handleResponse);
+  return apiUtils.api.registertraveldetailsPost(request).then(apiUtils.handleResponse);
 }
 
 function splitString(data: string) {
@@ -115,72 +112,41 @@ function splitString(data: string) {
   }
 }
 
-export function registerPassport(
-  username: string,
-  password: string,
-  passport: mob.Passport
-): Promise<PassportDetailsOutput> {
-  const gender: PassportDetailsInputNs.GenderEnum = (passport.gender !== null &&
-  passport.gender.toLowerCase().indexOf("f") > -1
-    ? "F"
-    : "M") as PassportDetailsInputNs.GenderEnum;
-
-  const status: PassportDetailsInputNs.PassportStatusEnum = utils.getStatus(
-    new Date(passport.expiryDate)
-  ) as PassportDetailsInputNs.PassportStatusEnum;
-
-  const nowDate: string = utils.getDateString(new Date());
-
+export function registerPassport(passport: mob.Passport): Promise<PassportDetailsOutput> {
   const request: PassportDetailsInput = {
     issuingCountry: passport.issueCountry,
-    gender: gender,
+    gender: getGender(passport),
     age: utils.getAge(new Date(passport.dateOfBirth)),
-    requestDate: nowDate,
-    passportStatus: status,
-    attributes: [
-      {
-        name: "first_name" as InfoAttribute.NameEnum,
-        value: passport.firstName
-      },
-      {
-        name: "last_name" as InfoAttribute.NameEnum,
-        value: passport.lastName
-      },
-      {
-        name: "birth_date" as InfoAttribute.NameEnum,
-        value: utils.toIsoDateString(passport.dateOfBirth)
-      },
-      {
-        name: "nationality" as InfoAttribute.NameEnum,
-        value: passport.issueCountry
-      },
-      {
-        name: "passport_numb" as InfoAttribute.NameEnum,
-        value: passport.documentNumber
-      },
-      {
-        name: "passport_expiry_date" as InfoAttribute.NameEnum,
-        value: utils.toIsoDateString(passport.expiryDate)
-      }
-      // {
-      //   name: InfoAttribute.NameEnum.FrequentFlyerNum,
-      //   value: passport.documentId
-      // },
-      // {
-      //   name: InfoAttribute.NameEnum.FrequentFlyerProgram,
-      //   value: passport.documentId
-      // },
-      // {
-      //   name: InfoAttribute.NameEnum.Picture,
-      //   value: passport.image,
-      //   isEncodedBase64: true
-      // }
-    ]
+    requestDate: utils.getDateString(new Date()),
+    passportStatus: getStatus(passport),
+    attributes: getPassportAttributes(passport)
   };
-
   logRequest(request);
+  return apiUtils.api.registerpassportdetailsPost(request).then(apiUtils.handleResponse);
+}
 
-  return apiUtils.api
-    .registerpassportdetailsPost(request)
-    .then(apiUtils.handleResponse);
+function getStatus(passport: mob.Passport): PassportDetailsInputNs.PassportStatusEnum {
+  return utils.getStatus(
+    new Date(passport.expiryDate)
+  ) as PassportDetailsInputNs.PassportStatusEnum;
+}
+
+function getGender(passport: mob.Passport): PassportDetailsInputNs.GenderEnum {
+  return (passport.gender !== null && passport.gender.toLowerCase().indexOf("f") > -1
+    ? "F"
+    : "M") as PassportDetailsInputNs.GenderEnum;
+}
+
+function getPassportAttributes(passport: mob.Passport): Array<InfoAttribute> {
+  return [
+    { name: "first_name", value: passport.firstName },
+    { name: "last_name", value: passport.lastName },
+    { name: "birth_date", value: utils.toIsoDateString(passport.dateOfBirth) },
+    { name: "nationality", value: passport.issueCountry },
+    { name: "passport_numb", value: passport.documentNumber },
+    {
+      name: "passport_expiry_date",
+      value: utils.toIsoDateString(passport.expiryDate)
+    }
+  ] as Array<InfoAttribute>;
 }

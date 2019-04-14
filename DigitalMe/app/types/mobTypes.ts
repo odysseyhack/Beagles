@@ -21,6 +21,7 @@ export type Booking = {
 
 export type Passport = {
   documentNumber: string;
+  documentNumberSignature: string;
   issueDate: string;
   issueCountry: string;
   expiryDate: string;
@@ -49,52 +50,66 @@ export function attributesToInfo(
   passport: Passport,
   booking: Booking
 ): InfoAttribute {
-  let infoAttribute: InfoAttribute = {
+  let attribute: InfoAttribute = {
     name: item,
-    value: "unknown"
+    value: undefined
   } as InfoAttribute;
+  attribute = setPassportAttribute(attribute, passport);
+  if (attribute.value === undefined) {
+    attribute = setBookingAttribute(attribute, booking);
+  }
+  return attribute;
+}
 
-  switch (item) {
+function setPassportAttribute(attr: InfoAttribute, passport: Passport): InfoAttribute {
+  switch (attr) {
     case requestAttributes.FirstName:
-      infoAttribute.value = passport.firstName;
+      attr.value = passport.firstName;
       break;
     case requestAttributes.LastName:
-      infoAttribute.value = passport.lastName;
+      attr.value = passport.lastName;
       break;
     case requestAttributes.BirthDate:
-      infoAttribute.value = utils.toIsoDateString(passport.dateOfBirth);
+      attr.value = utils.toIsoDateString(passport.dateOfBirth);
       break;
     case requestAttributes.Nationality:
-      infoAttribute.value = passport.issueCountry;
+      attr.value = passport.issueCountry;
       break;
     case requestAttributes.PassportNumb:
-      infoAttribute.value = passport.documentNumber;
+      attr.value = passport.documentNumber;
+      attr.signature = passport.documentNumberSignature;
       break;
     case requestAttributes.PassportExpiryDate:
-      infoAttribute.value = utils.toIsoDateString(passport.expiryDate);
+      attr.value = utils.toIsoDateString(passport.expiryDate);
       break;
     case requestAttributes.Picture:
-      infoAttribute.value = passport.faceImage;
-      infoAttribute.isEncodedBase64 = true;
-      break;
-    case requestAttributes.BookingId:
-      infoAttribute.value = booking.bookingId;
-      break;
-    case requestAttributes.AirlineId:
-      infoAttribute.value = booking.airlineId;
-      break;
-    case requestAttributes.LoungeAccess:
-      infoAttribute.value = booking.loungeAccess;
-      break;
-    case requestAttributes.ShopNotifications:
-      infoAttribute.value = booking.shopNotifications;
-      break;
-    case requestAttributes.TravelType:
-      infoAttribute.value = booking.travelType;
-      break;
-    case requestAttributes.TravelDate:
-      infoAttribute.value = utils.toIsoDateString(booking.travelDate);
+      attr.value = passport.faceImage;
+      attr.isEncodedBase64 = true;
       break;
   }
-  return infoAttribute;
+  return attr;
+}
+
+function setBookingAttribute(attr: InfoAttribute, booking: Booking): InfoAttribute {
+  switch (attr.name) {
+    case requestAttributes.BookingId:
+      attr.value = booking.bookingId;
+      break;
+    case requestAttributes.AirlineId:
+      attr.value = booking.airlineId;
+      break;
+    case requestAttributes.LoungeAccess:
+      attr.value = booking.loungeAccess;
+      break;
+    case requestAttributes.ShopNotifications:
+      attr.value = booking.shopNotifications;
+      break;
+    case requestAttributes.TravelType:
+      attr.value = booking.travelType;
+      break;
+    case requestAttributes.TravelDate:
+      attr.value = utils.toIsoDateString(booking.travelDate);
+      break;
+  }
+  return attr;
 }

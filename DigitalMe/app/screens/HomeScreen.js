@@ -6,59 +6,59 @@ import { textStyles } from "../constants/Styles";
 import { bindActionCreators } from "redux";
 import { signOffUser } from "../redux/store/userStore";
 import { connect } from "react-redux";
-import Colors from "../constants/Colors";
 
 class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: "MobID"
-  };
+  static navigationOptions = { title: "MobID" };
 
   render() {
     if (this.props.loading) {
       return <Loader />;
     } else {
-      return (
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.imageContainer}>{this._renderImage()}</View>
-
-          <View style={styles.viewContainer}>
-            <Text style={textStyles.headerText}>
-              Hello {this.props.passport.firstName}
-              {/* ({JSON.stringify(this.props.booking)}) */}
-            </Text>
-
-            <Button title="Barcode scanner" onPress={this._openScanner} />
-            <Button title="Wallet" onPress={this._openWallet} />
-            <Button title="Transactions" onPress={this._openTransactions} />
-            <Button title="Forget me" onPress={this._signOutAsync} />
-          </View>
-        </ScrollView>
-      );
+      return this._renderHome();
     }
   }
 
+  _renderHome() {
+    return (
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.imageContainer}>
+          {this.props.passport.faceImage && this._renderImage()}
+        </View>
+        <View style={styles.viewContainer}>
+          <Text style={textStyles.headerText}>
+            Hello {this.props.passport.firstName}
+          </Text>
+          {this._renderButtons()}
+        </View>
+      </ScrollView>
+    );
+  }
+
+  _renderButtons() {
+    return (
+      <>
+        <Button title="Barcode scanner" onPress={this._openScanner} />
+        <Button title="Wallet" onPress={this._openWallet} />
+        <Button title="Transactions" onPress={this._openTransactions} />
+        <Button title="Forget me" onPress={this._signOutAsync} />
+      </>
+    );
+  }
+
   _renderImage() {
-    if (
-      this.props.hasPassport &&
-      this.props.passport &&
-      this.props.passport.faceImage
-    ) {
-      return (
-        <Image
-          style={{
-            borderRadius: 10,
-            width: 200,
-            height: 200,
-            resizeMode: "contain"
-          }}
-          source={{
-            uri: "data:image/png;base64," + this.props.passport.faceImage
-          }}
-        />
-      );
-    } else {
-      return <></>;
-    }
+    return (
+      <Image
+        style={{
+          borderRadius: 10,
+          width: 200,
+          height: 200,
+          resizeMode: "contain"
+        }}
+        source={{
+          uri: "data:image/png;base64," + this.props.passport.faceImage
+        }}
+      />
+    );
   }
 
   _signOutAsync = async () => {

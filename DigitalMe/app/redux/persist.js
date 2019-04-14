@@ -7,8 +7,8 @@ import throttle from "lodash/throttle";
 
 export const loadState = async () => {
   try {
-    const serializedState = await SecureStore.getItemAsync("state");
-    // const serializedState = await AsyncStorage.getItem("state");
+    // const serializedState = await SecureStore.getItemAsync("state");
+    const serializedState = await AsyncStorage.getItem("state");
     if (serializedState !== null) {
       var data = JSON.parse(serializedState);
       data.apiCallsInProgress = 0;
@@ -23,8 +23,8 @@ export const loadState = async () => {
 const saveState = state => {
   try {
     const serializedState = JSON.stringify(state);
-    SecureStore.setItemAsync("state", serializedState);
-    //AsyncStorage.setItem("state", serializedState);
+    // SecureStore.setItemAsync("state", serializedState);
+    AsyncStorage.setItem("state", serializedState);
   } catch (err) {
     // Ignore write errors.
   }

@@ -7,7 +7,6 @@ class AuthLoadingScreen extends React.Component {
     this.props.navigation.navigate(this.props.hasUser ? "App" : "Auth");
   }
 
-  // Render any loading content that you like here
   render() {
     return <Loader />;
   }

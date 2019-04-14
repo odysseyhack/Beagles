@@ -22,8 +22,6 @@ export const actionCreators = {
   }
 };
 
-export const reducer = (state, action) => {
-  state = state || initialState.apiCallsInProgress;
-
+export const reducer = (state = initialState.apiCallsInProgress, action) => {
   return state;
 };

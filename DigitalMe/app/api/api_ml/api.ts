@@ -186,6 +186,40 @@ export interface ForgetMeInput {
 }
 
 /**
+ *
+ * @export
+ * @interface GenerateSignatureInput
+ */
+export interface GenerateSignatureInput {
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof GenerateSignatureInput
+   */
+  values: Array<string>;
+}
+
+/**
+ *
+ * @export
+ * @interface GenerateSignatureOutput
+ */
+export interface GenerateSignatureOutput {
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof GenerateSignatureOutput
+   */
+  signatures?: Array<string>;
+  /**
+   *
+   * @type {string}
+   * @memberof GenerateSignatureOutput
+   */
+  errorMessage?: string;
+}
+
+/**
  * Simple response that indicates if the action has been sucessful or not.
  * @export
  * @interface GenericProcessingOutput
@@ -605,6 +639,46 @@ export declare namespace TravelDetailsInputNs {
 /**
  *
  * @export
+ * @interface ValidateSignatureInput
+ */
+export interface ValidateSignatureInput {
+  /**
+   *
+   * @type {string}
+   * @memberof ValidateSignatureInput
+   */
+  value?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ValidateSignatureInput
+   */
+  signature?: string;
+}
+
+/**
+ *
+ * @export
+ * @interface ValidateSignatureOutput
+ */
+export interface ValidateSignatureOutput {
+  /**
+   *
+   * @type {boolean}
+   * @memberof ValidateSignatureOutput
+   */
+  signatureOK?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof ValidateSignatureOutput
+   */
+  errorMessage?: string;
+}
+
+/**
+ *
+ * @export
  * @interface WalletStatusOutput
  */
 export interface WalletStatusOutput {
@@ -730,6 +804,59 @@ export const DefaultApiFetchParamCreator = function(
       localVarRequestOptions.body = needsSerialization
         ? JSON.stringify(forgetMeInput || {})
         : forgetMeInput || "";
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions
+      };
+    },
+    /**
+     *
+     * @param {GenerateSignatureInput} generateSignatureInput
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    generatesignaturePost(
+      generateSignatureInput: GenerateSignatureInput,
+      options: any = {}
+    ): FetchArgs {
+      // verify required parameter 'generateSignatureInput' is not null or undefined
+      if (
+        generateSignatureInput === null ||
+        generateSignatureInput === undefined
+      ) {
+        throw new RequiredError(
+          "generateSignatureInput",
+          "Required parameter generateSignatureInput was null or undefined when calling generatesignaturePost."
+        );
+      }
+      const localVarPath = `/generatesignature`;
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: "POST" }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      localVarUrlObj.query = Object.assign(
+        {},
+        localVarUrlObj.query,
+        localVarQueryParameter,
+        options.query
+      );
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      delete localVarUrlObj.search;
+      localVarRequestOptions.headers = Object.assign(
+        {},
+        localVarHeaderParameter,
+        options.headers
+      );
+      const needsSerialization =
+        <any>"GenerateSignatureInput" !== "string" ||
+        localVarRequestOptions.headers["Content-Type"] === "application/json";
+      localVarRequestOptions.body = needsSerialization
+        ? JSON.stringify(generateSignatureInput || {})
+        : generateSignatureInput || "";
 
       return {
         url: url.format(localVarUrlObj),
@@ -1029,6 +1156,59 @@ export const DefaultApiFetchParamCreator = function(
         url: url.format(localVarUrlObj),
         options: localVarRequestOptions
       };
+    },
+    /**
+     *
+     * @param {ValidateSignatureInput} validateSignatureInput
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    validatesignaturePost(
+      validateSignatureInput: ValidateSignatureInput,
+      options: any = {}
+    ): FetchArgs {
+      // verify required parameter 'validateSignatureInput' is not null or undefined
+      if (
+        validateSignatureInput === null ||
+        validateSignatureInput === undefined
+      ) {
+        throw new RequiredError(
+          "validateSignatureInput",
+          "Required parameter validateSignatureInput was null or undefined when calling validatesignaturePost."
+        );
+      }
+      const localVarPath = `/validatesignature`;
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: "POST" }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      localVarUrlObj.query = Object.assign(
+        {},
+        localVarUrlObj.query,
+        localVarQueryParameter,
+        options.query
+      );
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      delete localVarUrlObj.search;
+      localVarRequestOptions.headers = Object.assign(
+        {},
+        localVarHeaderParameter,
+        options.headers
+      );
+      const needsSerialization =
+        <any>"ValidateSignatureInput" !== "string" ||
+        localVarRequestOptions.headers["Content-Type"] === "application/json";
+      localVarRequestOptions.body = needsSerialization
+        ? JSON.stringify(validateSignatureInput || {})
+        : validateSignatureInput || "";
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions
+      };
     }
   };
 };
@@ -1087,6 +1267,38 @@ export const DefaultApiFp = function(configuration?: Configuration) {
       const localVarFetchArgs = DefaultApiFetchParamCreator(
         configuration
       ).forgetmePost(forgetMeInput, options);
+      return (
+        fetch: FetchAPI = portableFetch,
+        basePath: string = BASE_PATH
+      ) => {
+        return fetch(
+          basePath + localVarFetchArgs.url,
+          localVarFetchArgs.options
+        ).then(response => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
+    },
+    /**
+     *
+     * @param {GenerateSignatureInput} generateSignatureInput
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    generatesignaturePost(
+      generateSignatureInput: GenerateSignatureInput,
+      options?: any
+    ): (
+      fetch?: FetchAPI,
+      basePath?: string
+    ) => Promise<GenerateSignatureOutput> {
+      const localVarFetchArgs = DefaultApiFetchParamCreator(
+        configuration
+      ).generatesignaturePost(generateSignatureInput, options);
       return (
         fetch: FetchAPI = portableFetch,
         basePath: string = BASE_PATH
@@ -1290,6 +1502,38 @@ export const DefaultApiFp = function(configuration?: Configuration) {
           }
         });
       };
+    },
+    /**
+     *
+     * @param {ValidateSignatureInput} validateSignatureInput
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    validatesignaturePost(
+      validateSignatureInput: ValidateSignatureInput,
+      options?: any
+    ): (
+      fetch?: FetchAPI,
+      basePath?: string
+    ) => Promise<ValidateSignatureOutput> {
+      const localVarFetchArgs = DefaultApiFetchParamCreator(
+        configuration
+      ).validatesignaturePost(validateSignatureInput, options);
+      return (
+        fetch: FetchAPI = portableFetch,
+        basePath: string = BASE_PATH
+      ) => {
+        return fetch(
+          basePath + localVarFetchArgs.url,
+          localVarFetchArgs.options
+        ).then(response => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
     }
   };
 };
@@ -1330,6 +1574,21 @@ export const DefaultApiFactory = function(
         fetch,
         basePath
       );
+    },
+    /**
+     *
+     * @param {GenerateSignatureInput} generateSignatureInput
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    generatesignaturePost(
+      generateSignatureInput: GenerateSignatureInput,
+      options?: any
+    ) {
+      return DefaultApiFp(configuration).generatesignaturePost(
+        generateSignatureInput,
+        options
+      )(fetch, basePath);
     },
     /**
      *
@@ -1417,6 +1676,21 @@ export const DefaultApiFactory = function(
         travelDetailsInput,
         options
       )(fetch, basePath);
+    },
+    /**
+     *
+     * @param {ValidateSignatureInput} validateSignatureInput
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    validatesignaturePost(
+      validateSignatureInput: ValidateSignatureInput,
+      options?: any
+    ) {
+      return DefaultApiFp(configuration).validatesignaturePost(
+        validateSignatureInput,
+        options
+      )(fetch, basePath);
     }
   };
 };
@@ -1455,6 +1729,23 @@ export class DefaultApi extends BaseAPI {
   public forgetmePost(forgetMeInput: ForgetMeInput, options?: any) {
     return DefaultApiFp(this.configuration).forgetmePost(
       forgetMeInput,
+      options
+    )(this.fetch, this.basePath);
+  }
+
+  /**
+   *
+   * @param {GenerateSignatureInput} generateSignatureInput
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DefaultApi
+   */
+  public generatesignaturePost(
+    generateSignatureInput: GenerateSignatureInput,
+    options?: any
+  ) {
+    return DefaultApiFp(this.configuration).generatesignaturePost(
+      generateSignatureInput,
       options
     )(this.fetch, this.basePath);
   }
@@ -1554,6 +1845,23 @@ export class DefaultApi extends BaseAPI {
   ) {
     return DefaultApiFp(this.configuration).registertraveldetailsPost(
       travelDetailsInput,
+      options
+    )(this.fetch, this.basePath);
+  }
+
+  /**
+   *
+   * @param {ValidateSignatureInput} validateSignatureInput
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DefaultApi
+   */
+  public validatesignaturePost(
+    validateSignatureInput: ValidateSignatureInput,
+    options?: any
+  ) {
+    return DefaultApiFp(this.configuration).validatesignaturePost(
+      validateSignatureInput,
       options
     )(this.fetch, this.basePath);
   }

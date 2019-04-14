@@ -1,34 +1,35 @@
 import React from "react";
-import {
-  Alert,
-  View,
-  Text,
-  FlatList,
-  ScrollView,
-  StyleSheet
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { Loader } from "../components/Loader";
 import { Button } from "../components/ButtonWithMargin";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { actionCreators } from "../redux/store/walletStore";
+import { getWalletstatus } from "../redux/store/walletStore";
+import { hackPassportNumber } from "../redux/store/passportStore";
+import { Input } from "../components/Input";
 
 class WalletScreen extends React.Component {
   static navigationOptions = {
     title: "Wallet"
   };
-
-  state = { status: null };
+  state = { status: null, enableHack: false };
 
   async componentDidMount() {
     try {
-      const result = await this.props.getWalletstatus(this.props.mobIdToken);
+      const result = await this.props.actions.getWalletstatus(this.props.mobIdToken);
       this.setState({ status: ({ valid, validUntil, errorMessage } = result) });
-    } catch (error) {
-      Alert.alert(error);
-      this.setState({ transactionsItems: [] });
+    } catch {
+      this.setState({ status: null });
     }
   }
+
+  _hackPassportNumber = () => {
+    this.setState({ enableHack: !this.state.enableHack });
+  };
+
+  _hackPassportNumberChange = value => {
+    this.props.actions.hackPassportNumber(value);
+  };
 
   render() {
     const { passport, booking } = this.props;
@@ -37,61 +38,79 @@ class WalletScreen extends React.Component {
     } else {
       return (
         <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.container}>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Passport</Text>
-              {this.state.status !== null && (
-                <Text style={styles.cardText}>
-                  Token valid until: {this.state.status.validUntil}
-                </Text>
-              )}
-              <View>
-                <Text style={styles.cardText}>Name: {passport.lastName}</Text>
-                <Text style={styles.cardText}>
-                  First name: {passport.firstName}
-                </Text>
-                <Text style={styles.cardText}>
-                  Date of birth: {passport.dateOfBirth}
-                </Text>
-                <Text style={styles.cardText}>
-                  Nationality: {passport.issueCountry}
-                </Text>
-                <Text style={styles.cardText}>
-                  Date of issue: {passport.issueDate}
-                </Text>
-                <Text style={styles.cardText}>
-                  Date of expiry: {passport.expiryDate}
-                </Text>
-                <Button title="revoke" />
-              </View>
-            </View>
-          </View>
-          <View style={styles.container}>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Booking</Text>
-              {booking !== null && (
-                <View>
-                  <Text style={styles.cardText}>Id: {booking.bookingId}</Text>
-                  <Text style={styles.cardText}>
-                    Airline: {booking.airlineId}
-                  </Text>
-                  <Text style={styles.cardText}>
-                    Lounges: {booking.loungeAccess}
-                  </Text>
-                  <Text style={styles.cardText}>
-                    Travel type: {booking.travelType}
-                  </Text>
-                  <Text style={styles.cardText}>
-                    Travel date: {booking.travelDate}
-                  </Text>
-                  <Button title="revoke" />
-                </View>
-              )}
-            </View>
-          </View>
+          <View style={styles.container}>{this.renderPassportCard(passport)}</View>
+          <View style={styles.container}>{this.renderBookingCard(booking)}</View>
         </ScrollView>
       );
     }
+  }
+
+  renderBookingCard(booking) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Booking</Text>
+        {booking !== null && this.renderBookingDetails(booking)}
+      </View>
+    );
+  }
+
+  renderBookingDetails(booking) {
+    return (
+      <View>
+        <Text style={styles.cardText}>Id: {booking.bookingId}</Text>
+        <Text style={styles.cardText}>Airline: {booking.airlineId}</Text>
+        <Text style={styles.cardText}>Lounges: {booking.loungeAccess}</Text>
+        <Text style={styles.cardText}>Travel type: {booking.travelType}</Text>
+        <Text style={styles.cardText}>Travel date: {booking.travelDate}</Text>
+        <Button title="revoke" />
+      </View>
+    );
+  }
+
+  renderPassportCard(passport) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Passport</Text>
+        {this.state.status !== null && (
+          <Text style={styles.cardText}>Token valid until: {this.state.status.validUntil}</Text>
+        )}
+        <View>
+          {this.renderPassportDetails(passport)}
+          <Button title="revoke" />
+          <Button title="hack" onPress={this._hackPassportNumber} />
+        </View>
+      </View>
+    );
+  }
+
+  renderPassportDetails(passport) {
+    return (
+      <>
+        {this.renderPassportNumber(passport)}
+        <Text style={styles.cardText}>Name: {passport.lastName}</Text>
+        <Text style={styles.cardText}>First name: {passport.firstName}</Text>
+        <Text style={styles.cardText}>Date of birth: {passport.dateOfBirth}</Text>
+        <Text style={styles.cardText}>Nationality: {passport.issueCountry}</Text>
+        <Text style={styles.cardText}>Date of issue: {passport.issueDate}</Text>
+        <Text style={styles.cardText}>Date of expiry: {passport.expiryDate}</Text>
+      </>
+    );
+  }
+
+  renderPassportNumber(passport) {
+    return (
+      <>
+        {this.state.enableHack ? (
+          <Input
+            label="hack documentNumber"
+            value={passport.documentNumber}
+            onChangeText={this._hackPassportNumberChange}
+          />
+        ) : (
+          <Text style={styles.cardText}>documentNumber: {passport.documentNumber}</Text>
+        )}
+      </>
+    );
   }
 }
 
@@ -120,6 +139,13 @@ const styles = StyleSheet.create({
   }
 });
 
+const mapDispatchToProps = dispatch => ({
+  actions: {
+    getWalletstatus: bindActionCreators(getWalletstatus, dispatch),
+    hackPassportNumber: bindActionCreators(hackPassportNumber, dispatch)
+  }
+});
+
 export default connect(
   state => ({
     loading: state.apiCallsInProgress > 0,
@@ -127,5 +153,5 @@ export default connect(
     passport: state.passport,
     booking: state.booking
   }),
-  dispatch => bindActionCreators(actionCreators, dispatch)
+  mapDispatchToProps
 )(WalletScreen);

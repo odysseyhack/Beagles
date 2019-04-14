@@ -1,15 +1,9 @@
-import {
-  createStackNavigator,
-  createSwitchNavigator,
-  createAppContainer
-} from "react-navigation";
+import { createStackNavigator, createSwitchNavigator, createAppContainer } from "react-navigation";
 import Colors from "../constants/Colors";
 
 import AuthLoadingScreen from "../screens/AuthLoadingScreen";
 import HomeAuthScreen from "../screens/HomeAuthScreen";
-import SignInScreen from "../screens/SignInScreen";
 import SignUpScreen from "../screens/SignUpScreenScreen";
-
 import HomeScreen from "../screens/HomeScreen";
 import TransactionsScreen from "../screens/TransactionsScreen";
 import WalletScreen from "../screens/WalletScreen";
@@ -40,7 +34,6 @@ const AppStack = createStackNavigator(
 const AuthStack = createStackNavigator(
   {
     HomeAuth: HomeAuthScreen,
-    SignIn: SignInScreen,
     SignUp: SignUpScreen
   },
   {

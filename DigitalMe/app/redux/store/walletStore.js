@@ -4,8 +4,8 @@ import * as api from "../../api/api";
 
 const getWalletstatusSuccess = "GET_WALLETSTATUS_SUCCESS";
 
-export const actionCreators = {
-  getWalletstatus: mobIdToken => async (dispatch, getState) => {
+export function getWalletstatus(mobIdToken) {
+  return async function(dispatch, getState) {
     dispatch(beginApiCall());
     try {
       const result = await api.getWalletstatus(mobIdToken);
@@ -17,11 +17,9 @@ export const actionCreators = {
       dispatch(apiCallError(error));
       throw error;
     }
-  }
-};
+  };
+}
 
 export const reducer = (state, action) => {
-  state = state || initialState.apiCallsInProgress;
-
-  return state;
+  return state || initialState.apiCallsInProgress;
 };

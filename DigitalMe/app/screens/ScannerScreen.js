@@ -6,7 +6,6 @@ import {
   View,
   Alert,
   FlatList,
-  TouchableHighlight,
   TouchableOpacity
 } from "react-native";
 import { BarCodeScanner, Permissions, LocalAuthentication } from "expo";
@@ -26,10 +25,7 @@ class ScannerScreen extends React.Component {
     infoRequest: null,
     errorMessage: null
   };
-  static navigationOptions = {
-    title: "Scan code"
-    // header: null
-  };
+  static navigationOptions = { title: "Scan code" };
 
   componentDidMount() {
     this.checkDeviceForHardware();
@@ -44,20 +40,7 @@ class ScannerScreen extends React.Component {
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
     if (isEnrolled) {
       this.setState({ supportBioMetrics: isEnrolled });
-      //Alert.alert("Biometrics supported and set up by user:)");
     }
-
-    // onderstaand zou aangeroepen kunnen worden wanneer 'accept' geklikt wordt
-    // auke, moeten op bij authenticatie wel iets tonen naar de gebruiker. zie commentaar:
-    // Attempts to authenticate via Fingerprint. Android: When using the fingerprint
-    // module on Android, you need to provide a UI component to prompt the user to scan their fingerprint,
-    // as the OS has no default alert for it.
-    // const result = await LocalAuthentication.authenticateAsync("Prompted message").
-    //   if (result.success === true) {
-    //     // authenticate successfully
-    //   } else {
-    //     // failed to authenticate
-    //   }
   };
 
   async componentWillMount() {
@@ -77,9 +60,8 @@ class ScannerScreen extends React.Component {
       return this.renderError(errorMessage);
     } else if (this.state.infoRequest !== null) {
       return this.renderAuthorize();
-    } else {
-      return this.renderScanner();
     }
+    return this.renderScanner();
   }
 
   renderError(errorMessage) {
@@ -98,41 +80,34 @@ class ScannerScreen extends React.Component {
           Info requested by {this.state.infoRequest.requestType}{" "}
           {this.state.infoRequest.accessPointId}
         </Text>
-        <Text>
-          Requested properties
-        </Text>
+        {this.renderRequestedAttributes()}
+        <View style={styles.confirmContainer}>
+          {this.renderIcon(this.acceptRequest, "md-checkmark-circle", "green")}
+          {this.renderIcon(this.declineRequest, "md-close-circle", "red")}
+        </View>
+      </ScrollView>
+    );
+  }
+
+  renderIcon(onPress, iconName, color) {
+    return (
+      <TouchableOpacity activeOpacity={0.4} onPress={onPress} underlayColor="white">
+        <Ionicons name={iconName} size={90} color={color} />
+      </TouchableOpacity>
+    );
+  }
+
+  renderRequestedAttributes() {
+    return (
+      <>
+        <Text>Requested properties</Text>
         <FlatList
           style={{ flex: 1 }}
           data={this.state.infoRequest.requestedAttributes}
           keyExtractor={(item, index) => item + index}
-          renderItem={({ item }) => (
-            <Text style={textStyles.listItemText}>{item}</Text>
-          )}
+          renderItem={({ item }) => <Text style={textStyles.listItemText}>{item}</Text>}
         />
-        <View
-          style={{
-            flex: 1,
-            alignItems: "flex-end",
-            flexDirection: "row",
-            justifyContent: "space-around"
-          }}
-        >
-          <TouchableOpacity
-            activeOpacity={0.4}
-            onPress={this.acceptRequest}
-            underlayColor="white"
-          >
-            <Ionicons name="md-checkmark-circle" size={90} color="green" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.4}
-            onPress={this.declineRequest}
-            underlayColor="white"
-          >
-            <Ionicons name="md-close-circle" size={90} color="red" />
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      </>
     );
   }
 
@@ -140,10 +115,7 @@ class ScannerScreen extends React.Component {
     return (
       <>
         <View style={styles.container}>
-          <BarCodeScanner
-            onBarCodeRead={this.handleBarCodeRead}
-            style={StyleSheet.absoluteFill}
-          />
+          <BarCodeScanner onBarCodeRead={this.handleBarCodeRead} style={StyleSheet.absoluteFill} />
         </View>
         <View style={styles.container}>
           <Button onPress={this.handleCancel} title="Cancel" />
@@ -156,58 +128,48 @@ class ScannerScreen extends React.Component {
     if (data !== null && data !== undefined) {
       try {
         const request = JSON.parse(data);
-        let hasBooking = this.props.hasBooking === true;
-
-        if (request.bookingDetails && request.bookingDetails.bookingId) {
-          const result = await this.props.actions.storeBooking(
-            request.bookingDetails,
-            this.props.mobIdToken
-          );
-          hasBooking = result.processingOK;
-        }
-
-        if (!hasBooking) {
+        if (!(await this.getBooking(request))) {
           this.setState({ errorMessage: "Add a booking first!" });
           return;
         }
-
-        if (
-          request.infoRequest &&
-          request.infoRequest.requestId &&
-          request.infoRequest.requestedAttributes &&
-          request.infoRequest.requestedAttributes.length > 0
-        ) {
-          //Harm dit is een romeltje zit te klojoen met de booking state.
+        if (request.infoRequest && request.infoRequest.requestId) {
           this.setState({ infoRequest: request.infoRequest });
           return;
         }
       } catch (error) {
-        if (error.message !== undefined) {
-          Alert.alert(error.message);
-        }
+        if (error && error.message) Alert.alert(error.message);
         return;
       }
     }
     Alert.alert("invalid code");
-    // Alert.alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+  };
+
+  getBooking = async request => {
+    let hasBooking = this.props.hasBooking === true;
+    if (request.bookingDetails && request.bookingDetails.bookingId) {
+      const result = await this.props.actions.storeBooking(
+        request.bookingDetails,
+        this.props.mobIdToken
+      );
+      hasBooking = result.processingOK;
+    }
+    return hasBooking;
   };
 
   acceptRequest = async () => {
     try {
-      var result = await LocalAuthentication.authenticateAsync("Prompted message");
+      // var result = await LocalAuthentication.authenticateAsync(
+      //   "Prompted message"
+      // );
+      var result = { success: true };
       if (result.success === true) {
-        var result = await this.props.actions.acceptRequest(
-          this.state.infoRequest
-        );
+        var result = await this.props.actions.acceptRequest(this.state.infoRequest);
         if (result === true) this.props.navigation.goBack();
       } else {
         return;
       }
     } catch (error) {
-      if (error.message !== undefined) {
-        if (error.message)
-        Alert.alert(error.message);
-      }
+      if (error && error.message) Alert.alert(error.message);
     }
   };
 
@@ -219,9 +181,7 @@ class ScannerScreen extends React.Component {
       );
       if (result === true) this.props.navigation.goBack();
     } catch (error) {
-      if (error.message !== undefined) {
-        Alert.alert(error.message);
-      }
+      if (error && error.message) Alert.alert(error.message);
     }
   };
 
@@ -233,6 +193,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     justifyContent: "center"
+  },
+  confirmContainer: {
+    flex: 1,
+    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "space-around"
   }
 });
 

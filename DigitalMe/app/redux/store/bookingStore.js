@@ -1,9 +1,5 @@
 import initialState from "../initialState";
-import {
-  beginApiCall,
-  apiCallError,
-  endApiCall
-} from "../actions/apiStatusActions";
+import { beginApiCall, apiCallError, endApiCall } from "../actions/apiStatusActions";
 import * as api from "../../api/api";
 import { userSignOffType } from "./userStore";
 
@@ -20,9 +16,8 @@ export const storeBooking = (booking, mobIdToken) => async dispatch => {
     } else {
       dispatch(endApiCall());
     }
-
     return {
-      processingOK: result.registrationOK || result.processingOK,
+      processingOK: result.processingOK || result.registrationOK,
       errorMessage: result.errorMessage
     };
   } catch (error) {

@@ -15,17 +15,12 @@ export function acceptRequest(infoRequest) {
       const passport = getState().passport;
       dispatch(beginApiCall());
 
-      //Harm de mapper hier heeft een booking nodig
-      const attributes = infoRequest.requestedAttributes.map(value =>
+      const infoAttributes = infoRequest.requestedAttributes.map(value =>
         attributesToInfo(value, passport, booking)
       );
 
-      const result = await api.authorizeInfoRequest(
-        passport,
-        booking,
-        infoRequest,
-        attributes
-      );
+      const params = { passport, booking, infoRequest, infoAttributes };
+      const result = await api.authorizeInfoRequest(params);
 
       dispatch({ type: infoRequestAccepted });
 
@@ -54,25 +49,6 @@ export function declineRequest(infoRequest, mobIdToken) {
   };
 }
 
-export const reducer = (state, action) => {
-  state = state || initialState;
-
-  // if (action.type === infoRequestAccepted) {
-  //   return {
-  //     ...state,
-  //     startDateIndex: action.startDateIndex,
-  //     isLoading: true
-  //   };
-  // }
-
-  // if (action.type === receiveWeatherForecastsType) {
-  //   return {
-  //     ...state,
-  //     startDateIndex: action.startDateIndex,
-  //     forecasts: action.forecasts,
-  //     isLoading: false
-  //   };
-  // }
-
+export const reducer = (state = initialState.apiCallsInProgress, action) => {
   return state;
 };
