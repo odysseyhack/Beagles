@@ -1,145 +1,81 @@
 // Dependencies
-const AWS = require('aws-sdk');
+const storage = require('../storage.js');
 const krypcore = require('../krypcore.js');
-
 
 function authorizeInfoRequest(inBody, callback) {
     console.log("authorizeInfoRequest");
     console.log("requestId = ", inBody.requestId);
 
-    const dbClient = new AWS.DynamoDB.DocumentClient({ region: 'eu-central-1' });
+    const outBody = {
+        processingOK: false,
+        errorMessage: null
+    };
 
+    const exitWithError = function(errorMessage) {
+        outBody.errorMessage = errorMessage;
+        callback(outBody);
+    }
 
     // Get registered request
-    dbClient.get({
-        Key: {
-            "requestId": inBody.requestId
-        },
-        TableName: 'info_request'
-    }, function(error, data) {
-        console.log("Result of getting item from info_request:");
-        console.log(error);
-        console.log(data);
+    storage.getRequest(
+        inBody.requestId,
+        function(item) {
+            if (item.isCompleted) {
+                exitWithError("The request id '" + inBody.requestId + "' has been already " + (item.isAuthorized ? "authorized." : "declined."));
+            }
+            else {
 
-        const outBody = {
-            processingOK: false,
-            errorMessage: null
-        };
+                if (inBody.declineAuthorization) {
 
-        if (error) {
-            outBody.errorMessage = error.message;
-            callback(outBody);
-        }
-        else {
-            const item = data.Item;
-            if (item != null) {
+                    item.sharedAttributes = null;
+                    item.isCompleted = true;
+                    item.isAuthorized = false;
 
-                if (item.isCompleted) {
-                    outBody.errorMessage = "The request id '" + inBody.requestId + "' has been already " + (item.isAuthorized ? "authorized." : "declined.");
-                    callback(outBody);
+                    // Temporary store shared information
+                    storage.storeRequest(
+                        item,
+                        function() {
+                            outBody.processingOK = true;
+                            callback(outBody);
+                        }, exitWithError);
+
                 }
                 else {
 
-                    if (inBody.declineAuthorization) {
+                    const kcReqBody = {
+                        "Receiver": {
+                            "ID": krypcore.getRequestTypeUser(inBody.requestType),
+                        },
+                        "StructureId": "inforequests",
+                        "Payload": {
+                            "additionalDtls": inBody.requesterId + "|" + inBody.accessPointId,
+                            "bookId": inBody.bookingId,
+                            "primaryId": inBody.mobIdToken,
+                            "reqDate": krypcore.generateDate(inBody.requestDate),
+                            "requestId": inBody.requestId,
+                            "requestType": inBody.requestType
+                        }
+                    };
 
-                        item.sharedAttributes = null;
+                    // Call KrypC inforequests
+                    krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(kcResContent) {
+
+                        item.sharedAttributes = inBody.attributes;
                         item.isCompleted = true;
-                        item.isAuthorized = false;
+                        item.isAuthorized = true;
 
                         // Temporary store shared information
-                        dbClient.put({
-                            Item: item,
-                            TableName: 'info_request'
-                        }, function(error, data) {
-                            console.log("Result of updating item to info_request:");
-                            console.log(error);
-                            console.log(data);
-
-                            if (error) {
-                                outBody.errorMessage = error.message;
-                            }
-                            else {
-                                outBody.processingOK = true;
-                            }
-
+                        storage.storeRequest(item, function() {
+                            outBody.processingOK = true;
                             callback(outBody);
-                        });
+                        }, exitWithError);
 
-                    }
-                    else {
-
-                        const kcReqBody = {
-                            "Receiver": {
-                                "ID": krypcore.getRequestTypeUser(inBody.requestType),
-                            },
-                            "StructureId": "inforequests",
-                            "Payload": {
-                                "additionalDtls": inBody.requesterId + "|" + inBody.accessPointId,
-                                "bookId": inBody.bookingId,
-                                "primaryId": inBody.mobIdToken,
-                                "reqDate": krypcore.generateDate(inBody.requestDate),
-                                "requestId": inBody.requestId,
-                                "requestType": inBody.requestType
-                            }
-                        };
-
-
-                        // Call KrypC inforequests
-                        krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(succeed, kcResContent) {
-
-                            console.log("succeed = ", succeed);
-                            //console.log("kcResContent = ", kcResContent);
-
-                            if (succeed) {
-                                if (kcResContent.Status || kcResContent.status) {
-
-                                    item.sharedAttributes = inBody.attributes;
-                                    item.isCompleted = true;
-                                    item.isAuthorized = true;
-
-                                    // Temporary store shared information
-                                    dbClient.put({
-                                        Item: item,
-                                        TableName: 'info_request'
-                                    }, function(error, data) {
-                                        console.log("Result of updating item to info_request:");
-                                        console.log(error);
-                                        console.log(data);
-
-                                        if (error) {
-                                            outBody.errorMessage = error.message;
-                                        }
-                                        else {
-                                            outBody.processingOK = true;
-                                        }
-
-                                        callback(outBody);
-                                    });
-
-                                }
-                                else {
-                                    outBody.errorMessage = kcResContent.message;
-                                    callback(outBody);
-                                }
-                            }
-                            else {
-                                outBody.errorMessage = kcResContent;
-                                callback(outBody);
-                            }
-
-                        });
-                    }
-
+                    }, exitWithError);
                 }
 
             }
-            else {
-                outBody.errorMessage = "The request id '" + inBody.requestId + "' has never been registered.";
-                callback(outBody);
-            }
-        }
 
-    });
+        }, exitWithError);
 
 }
 

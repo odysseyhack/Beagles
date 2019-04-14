@@ -16,31 +16,20 @@ function registerTravelDetails(inBody, callback) {
         }
     };
 
-    // Call KrypC traveldetails
-    krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(succeed, kcResContent) {
-
-        console.log("succeed = ", succeed);
-        //console.log("kcResContent = ", kcResContent);
-
-        const outBody = {
+    const outBody = {
             processingOK: false,
             errorMessage: null
         };
+    
+    // Call KrypC traveldetails
+    krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(kcResContent) {
 
-        if (succeed) {
-            if (kcResContent.Status || kcResContent.status) {
-                outBody.processingOK = true;
-            }
-            else {
-                outBody.errorMessage = kcResContent.message;
-            }
-        }
-        else {
-            outBody.errorMessage = kcResContent;
-        }
-
+        outBody.processingOK = true;
         callback(outBody);
 
+    }, function(errorMessage) {
+    	outBody.errorMessage = errorMessage;
+        callback(outBody);
     });
 }
 

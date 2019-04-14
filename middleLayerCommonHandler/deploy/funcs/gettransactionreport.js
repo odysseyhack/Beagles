@@ -13,39 +13,34 @@ function getTransactionReport(inParams, callback) {
         }
     };
 
-    // Call KrypC walletstatereport
-    krypcore.invokeAPI('/kc/api/ledgerChainCode/requestReport', kcReqBody, function(succeed, kcResContent) {
-
-        console.log("succeed = ", succeed);
-        //console.log("kcResContent = ", kcResContent);
-
-        const outBody = {
-            transactions: []
+    const outBody = {
+            transactions: [],
+            errorMessage: null
         };
+    
+    // Call KrypC walletstatereport
+    krypcore.invokeAPI('/kc/api/ledgerChainCode/requestReport', kcReqBody, function(kcResContent) {
 
-        if (succeed) {
-            if ((kcResContent.Status || kcResContent.status) && kcResContent.Extra[0]) {
-
-                const extra = kcResContent.Extra[0];
-                for (var i = 0; i < extra.length; i++) {
-                    outBody.transactions[i] = {
-                        mobIdToken: extra[i].mapsByNameAndFieldValue.primaryId.value,
-                        requestDate: extra[i].mapsByNameAndFieldValue.reqDate.value.cvalue,
-                        requestId: extra[i].mapsByNameAndFieldValue.requestId.value,
-                        requestType: extra[i].mapsByNameAndFieldValue.requestType.value
-                    };
-                }
-            }
-            else {
-                outBody.errorMessage = kcResContent.message;
-            }
-        }
-        else {
-            outBody.errorMessage = kcResContent;
-        }
-
+    	if (kcResContent.Extra && kcResContent.Extra[0])
+    	{
+	        const extra = kcResContent.Extra[0];
+	        for (var i = 0; i < extra.length; i++) {
+	            outBody.transactions[i] = {
+	                mobIdToken: extra[i].mapsByNameAndFieldValue.primaryId.value,
+	                requestDate: extra[i].mapsByNameAndFieldValue.reqDate.value.cvalue,
+	                requestId: extra[i].mapsByNameAndFieldValue.requestId.value,
+	                requestType: extra[i].mapsByNameAndFieldValue.requestType.value
+	            };
+	        }
+    	}
+    	else {
+    		outBody.errorMessage = "No Extra field found.";
+    	}
         callback(outBody);
 
+    }, function(errorMessage) {
+    	outBody.errorMessage = errorMessage;
+        callback(outBody);
     });
 
 }

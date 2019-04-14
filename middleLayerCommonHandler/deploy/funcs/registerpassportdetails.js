@@ -26,35 +26,24 @@ function registerPassportDetails(inBody, callback) {
         }
     };
 
-    // Call KrypC psprtdetails
-    krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(succeed, kcResContent) {
-
-        console.log("succeed = ", succeed);
-        //console.log("kcResContent = ", kcResContent);
-        
-        const outBody = {
+    const outBody = {
             registrationOK: false,
             mobIdToken: null,
             validUntil: null,
             errorMessage: null
         };
+    
+    // Call KrypC psprtdetails
+    krypcore.invokeAPI('/kc/api/ledgerChainCode/sendMessage', kcReqBody, function(kcResContent) {
 
-        if (succeed) {
-            if (kcResContent.Status || kcResContent.status) {
-                outBody.registrationOK = true;
-                outBody.validUntil = validUntil.toISOString();
-                outBody.mobIdToken = mobId;
-            }
-            else {
-                outBody.errorMessage = kcResContent.message;
-            }
-        }
-        else {
-            outBody.errorMessage = kcResContent;
-        }
-
+        outBody.registrationOK = true;
+        outBody.validUntil = validUntil.toISOString();
+        outBody.mobIdToken = mobId;
         callback(outBody);
 
+    }, function(errorMessage) {
+    	outBody.errorMessage = errorMessage;
+        callback(outBody);
     });
 }
 

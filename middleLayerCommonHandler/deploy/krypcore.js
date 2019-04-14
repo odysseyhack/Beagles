@@ -1,7 +1,7 @@
 // Dependencies
 const https = require('https');
 
-function invokeAPI(reqPath, reqBody, callback) {
+function invokeAPI(reqPath, reqBody, callbackOK, callbackError) {
     console.log('Calling KrypCore ', reqPath);
     
     kcReqBody.Program = "digitalmes";
@@ -38,18 +38,32 @@ function invokeAPI(reqPath, reqBody, callback) {
 
         res.on('end', function() {
             console.log('Call completed: ', resBody);
-            callback(res.statusCode == 200, JSON.parse(resBody));
+            if (res.statusCode == 200) {
+            	console.log('Succeed');
+            	const kcResContent = JSON.parse(resBody);
+            	if (kcResContent.Status || kcResContent.status) {
+                	callbackOK(kcResContent);
+            	}
+            	else {
+            		callbackError(kcResContent.message);
+            	}
+            }
+            else {
+            	console.log('Not succeed');
+            	callbackError(resBody);
+            }
+            	
         });
 
         res.on('error', function(error) {
             console.error('Call failed: ', error);
-            callback(false, error);
+            callbackError(error);
         });
     });
 
     req.on('error', function(error) {
         console.error('Error calling KrypCore: ', error.message);
-        callback(false, error.message);
+        callbackError(error.message);
     });
 
     req.setTimeout(10000, function() {

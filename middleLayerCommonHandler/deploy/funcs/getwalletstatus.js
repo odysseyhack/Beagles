@@ -15,33 +15,28 @@ function getWalletStatus(inParams, callback) {
         }
     };
 
-    // Call KrypC walletstatereport
-    krypcore.invokeAPI('/kc/api/ledgerChainCode/requestReport', kcReqBody, function(succeed, kcResContent) {
-
-        console.log("succeed = ", succeed);
-        //console.log("kcResContent = ", kcResContent);
-
-        const outBody = {
+    const outBody = {
             valid: false,
             validUntil: null,
             errorMessage: null
         };
+    
+    // Call KrypC walletstatereport
+    krypcore.invokeAPI('/kc/api/ledgerChainCode/requestReport', kcReqBody, function(kcResContent) {
 
-        if (succeed) {
-            if ((kcResContent.Status || kcResContent.status) && kcResContent.Extra[0]) {
-                outBody.valid = kcResContent.Extra[0].mapsByNameAndFieldValue.IDTokenStatus.value == "Active";
-                outBody.validUntil = kcResContent.Extra[0].mapsByNameAndFieldValue.entDt.value.cvalue;
-            }
-            else {
-                outBody.errorMessage = kcResContent.message;
-            }
+        if (kcResContent.Extra && kcResContent.Extra[0]) {
+            outBody.valid = kcResContent.Extra[0].mapsByNameAndFieldValue.IDTokenStatus.value == "Active";
+            outBody.validUntil = kcResContent.Extra[0].mapsByNameAndFieldValue.entDt.value.cvalue;
         }
         else {
-            outBody.errorMessage = kcResContent;
+        	outBody.errorMessage = "No Extra field found.";
         }
 
         callback(outBody);
 
+    }, function(errorMessage) {
+    	outBody.errorMessage = errorMessage;
+        callback(outBody);
     });
 
 }
