@@ -50,26 +50,23 @@ function invokeAPI(reqPath, reqBody, callback) {
 
 
 function generateDate(sDate) {
+    var dDate;
     if (sDate == null || sDate == "") {
-        return {
-            "cvalue": "",
-            "format": "",
-            "value": ""
-        };
+        dDate = new Date();
     }
     else {
-        const dDate = new Date(sDate);
-        var y = dDate.getFullYear();
-        var m = "0" + (dDate.getMonth() + 1);
-        m = m.substring(m.length - 2);
-        var d = "0" + (dDate.getDate() + 1);
-        d = d.substring(d.length - 2);
-        return {
-            "cvalue": y + "-" + m + "-" + d + " 00:00:00",
-            "format": "02-01-2006",
-            "value": d + "-" + m + "-" + y
-        };
+        dDate = new Date(sDate);
     }
+    var y = dDate.getFullYear();
+    var m = "0" + (dDate.getMonth() + 1);
+    m = m.substring(m.length - 2);
+    var d = "0" + (dDate.getDate() + 1);
+    d = d.substring(d.length - 2);
+    return {
+        "cvalue": y + "-" + m + "-" + d + " 00:00:00",
+        "format": "02-01-2006",
+        "value": d + "-" + m + "-" + y
+    };
 }
 
 function getRequestTypeUser(requestType) {
@@ -87,7 +84,7 @@ function getRequestTypeUser(requestType) {
         case "Booking":
             return "klmticketing";
     }
-    return "loungeuser1"; // 
+    return "loungeuser1"; // default
 }
 
 module.exports = {
