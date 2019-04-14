@@ -1,4 +1,5 @@
 const registerpassportdetails = require('../deploy/funcs/registerpassportdetails.js');
+const expect = require('chai').expect;
 
 var bodyInputTest = {
    "issuingCountry" : "US",
@@ -19,6 +20,7 @@ var bodyInputTest = {
 
 const doResolve = function(outBody) {
     console.log("Finished test is ", outBody.processingOK);
+    expect(outBody.processingOK).toBe(true);
 };
 
 registerpassportdetails.process(bodyInputTest, doResolve);
