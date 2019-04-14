@@ -33,38 +33,10 @@ public class CryptoTools implements RequestHandler<APIGatewayProxyRequestEvent, 
 				JSONObject body = (JSONObject) (new JSONParser()).parse(event.getBody());
 
 				if ("/validatesignature".equals(event.getResource())) {
-
-					Object valueObj = body.get("value");
-					if (valueObj == null || !(valueObj instanceof String)) throw new Exception("Missing or unexpected type for input value");
-					Object signatureObj = body.get("signature");
-					if (signatureObj == null || !(signatureObj instanceof String))
-						throw new Exception("Missing or unexpected type for input signature");
-
-					boolean signatureOK = ValidateSignature.validateSignature(valueObj.toString(), signatureObj.toString());
-					responseBody.put("signatureOK", signatureOK);
-
+					HandleGenerateSignature.handleGenerateSignature(body, responseBody);
 				}
 				else if ("/generatesignature".equals(event.getResource())) {
-					Object valuesObj = body.get("values");
-
-					if (valuesObj == null || !(valuesObj instanceof List)) throw new Exception(
-							"Missing or unexpected type for input values [" + valuesObj == null ? "null" : valuesObj.getClass().toString() + "]");
-
-					ArrayList<String> signatures = new ArrayList<>();
-
-					@SuppressWarnings("unchecked")
-					List<Object> values = (List<Object>) valuesObj;
-					for (Object valueObj : values) {
-						if (valueObj != null) {
-							if (!(valueObj instanceof String)) throw new Exception("Unexpected type for one value inside the values.");
-							signatures.add(GenerateSignature.generateSignature(valueObj.toString()));
-						}
-						else {
-							signatures.add(null);
-						}
-					}
-					responseBody.put("signatures", signatures);
-
+					HandleValidateSignature.handleValidateSignature(body, responseBody);
 				}
 				else {
 					responseBody.put("errorMessage", "Unknown resource " + event.getResource());
